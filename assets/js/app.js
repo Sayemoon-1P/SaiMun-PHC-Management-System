@@ -131,6 +131,7 @@
       </a>
       <nav class="nav" aria-label="เมนูหลัก">
         ${key('#/', '🏠', 't-honey', 'หน้าหลัก (Dashboard)', active === 'home')}
+        ${SITE.smartHomeVisitUrl ? `<a class="nav-key shv" href="${esc(SITE.smartHomeVisitUrl)}" target="_blank" rel="noopener noreferrer"><span class="ico" aria-hidden="true">📱</span><span class="lbl">Smart Home Visit<small>ระบบเยี่ยมบ้าน · เปิดแท็บใหม่ ↗</small></span></a>` : ''}
         <div class="nav-label">กลุ่มงาน</div>
         ${GROUPS.map(g => key('#/group/' + g.key, g.emoji, tone(g.tone), g.title, active === g.key)).join('')}
         <div class="nav-label">ผู้ดูแลระบบ</div>
@@ -274,6 +275,7 @@
       <article class="card t-copper">
         <header class="card-h"><span>⚡ ทางลัด</span></header>
         <div class="card-b quick">
+          ${SITE.smartHomeVisitUrl ? `<a class="b3d danger span2" href="${esc(SITE.smartHomeVisitUrl)}" target="_blank" rel="noopener noreferrer">📱 เปิด Smart Home Visit (ระบบเยี่ยมบ้าน) ↗</a>` : ''}
           <button class="b3d" data-act="add" data-key="incoming">📥 ลงรับหนังสือ</button>
           <button class="b3d gold" data-act="add" data-key="outgoing">📤 ออกเลขหนังสือส่ง</button>
           <button class="b3d" data-act="add" data-key="ttm">💆 จองคิวแผนไทย</button>

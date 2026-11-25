@@ -109,6 +109,17 @@ h1, h2, h3 { line-height: 1.3; }
 }
 .nav-key .ico { width: 36px; height: 36px; font-size: 1.12rem; border-radius: 11px; }
 .nav-key .lbl { min-width: 0; }
+.nav-key .lbl small { display: block; font-size: .74rem; font-weight: 500; opacity: .92; }
+/* ปุ่ม Smart Home Visit — เด่นกว่าเมนูอื่น */
+.nav-key.shv {
+  color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+  background: linear-gradient(180deg, #b23a26 0%, #842617 100%); border-color: #6a1d10;
+  box-shadow: 0 5px 0 #4a1308, 0 0 0 2px rgba(255, 215, 150, .35), 0 9px 16px rgba(40, 10, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .35);
+}
+.nav-key.shv:hover { box-shadow: 0 7px 0 #4a1308, 0 0 0 2px rgba(255, 215, 150, .5), 0 12px 20px rgba(40, 10, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .35); }
+.nav-key.shv:active { box-shadow: 0 1px 0 #4a1308, 0 3px 6px rgba(40, 10, 0, .4), inset 0 2px 4px rgba(0, 0, 0, .25); }
+.nav-key.shv .ico { background: linear-gradient(180deg, #fff, #fde3cf); box-shadow: 0 3px 0 #4a1308; }
+.quick .span2 { grid-column: 1 / -1; }
 
 .userbox { position: relative; display: flex; align-items: center; gap: .7rem; padding: .85rem 1rem 1rem; border-top: 1px solid rgba(255, 228, 190, .22); background: rgba(50, 20, 5, .18); }
 .userbox .avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(180deg, #ffe596, #f2ae3a); box-shadow: 0 3px 0 #a8650f; font-size: 1.2rem; flex: none; }

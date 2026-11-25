@@ -13,6 +13,8 @@ window.SITE = {
   directorTitle: 'ผู้อำนวยการ',
   villages: ['หมู่ 1', 'หมู่ 2', 'หมู่ 3', 'หมู่ 4', 'หมู่ 5', 'หมู่ 6', 'หมู่ 7', 'หมู่ 8'],
   rooms: ['ห้องตรวจโรค', 'ห้อง ER', 'ห้องยา'],
+  /* ลิงก์ระบบเยี่ยมบ้าน Smart Home Visit (ลิงก์สำหรับเจ้าหน้าที่) — ลบหรือเว้นว่าง '' เพื่อซ่อนเมนูนี้ */
+  smartHomeVisitUrl: 'https://script.google.com/macros/s/AKfycbywzKD0pDdi04_ufNimXQm-DJ8l2n8_A6auOeZIl1dp81E-Ls402ERvBx9xsGI1taWIeQ/exec',
   storageKey: 'saimun-phc-v1',
 };
 
@@ -389,6 +391,7 @@ window.SITE = {
     {
       key: 'visit', title: 'งานเยี่ยมบ้านและงานดูแลผู้ป่วยเชิงรุก', emoji: '🏡', tone: 'chestnut',
       items: [
+        ...(SITE.smartHomeVisitUrl ? [{ key: 'smarthv', label: 'Smart Home Visit (ระบบเยี่ยมบ้าน)', emoji: '📱', desc: 'บันทึกการเยี่ยมบ้าน ภาพถ่าย ปักหมุดบ้าน รายงานประจำเดือน (เปิดในแท็บใหม่)', href: SITE.smartHomeVisitUrl }] : []),
         { key: 'visitPlan', label: 'แผนเยี่ยมบ้านเชิงรุกประจำเดือน', emoji: '🗺️', desc: 'วางแผนและติดตามการเยี่ยมบ้าน', schema: { dateKey: 'date', fields: [
           { k: 'date', label: 'วันที่นัดเยี่ยม', type: 'date', req: 1, def: 'today' },
           { k: 'name', label: 'ผู้รับการเยี่ยม', req: 1 },
