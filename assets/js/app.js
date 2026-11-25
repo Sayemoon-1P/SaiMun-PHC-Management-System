@@ -131,7 +131,8 @@
       </a>
       <nav class="nav" aria-label="เมนูหลัก">
         ${key('#/', '🏠', 't-honey', 'หน้าหลัก (Dashboard)', active === 'home')}
-        ${SITE.smartHomeVisitUrl ? `<a class="nav-key shv" href="${esc(SITE.smartHomeVisitUrl)}" target="_blank" rel="noopener noreferrer"><span class="ico" aria-hidden="true">📱</span><span class="lbl">Smart Home Visit<small>ระบบเยี่ยมบ้าน · เปิดแท็บใหม่ ↗</small></span></a>` : ''}
+        ${SITE.smartHomeVisitUrl ? `<a class="nav-key shv" href="${esc(SITE.smartHomeVisitUrl)}" target="_blank" rel="noopener noreferrer"><span class="ico" aria-hidden="true">📱</span><span class="lbl">Smart Home Visit<small>ระบบเยี่ยมบ้าน · เปิดแท็บใหม่ ↗</small></span></a>
+        <button type="button" class="nav-help" data-act="shv-help">❓ เปิดไม่ได้? ดูวิธีแก้</button>` : ''}
         <div class="nav-label">กลุ่มงาน</div>
         ${GROUPS.map(g => key('#/group/' + g.key, g.emoji, tone(g.tone), g.title, active === g.key)).join('')}
         <div class="nav-label">ผู้ดูแลระบบ</div>
@@ -275,7 +276,8 @@
       <article class="card t-copper">
         <header class="card-h"><span>⚡ ทางลัด</span></header>
         <div class="card-b quick">
-          ${SITE.smartHomeVisitUrl ? `<a class="b3d danger span2" href="${esc(SITE.smartHomeVisitUrl)}" target="_blank" rel="noopener noreferrer">📱 เปิด Smart Home Visit (ระบบเยี่ยมบ้าน) ↗</a>` : ''}
+          ${SITE.smartHomeVisitUrl ? `<a class="b3d danger span2" href="${esc(SITE.smartHomeVisitUrl)}" target="_blank" rel="noopener noreferrer">📱 เปิด Smart Home Visit (ระบบเยี่ยมบ้าน) ↗</a>
+          <button type="button" class="linkish span2" data-act="shv-help">❓ เปิด Smart Home Visit ไม่ได้ / ขึ้น “Sorry, unable to open the file” — ดูวิธีแก้</button>` : ''}
           <button class="b3d" data-act="add" data-key="incoming">📥 ลงรับหนังสือ</button>
           <button class="b3d gold" data-act="add" data-key="outgoing">📤 ออกเลขหนังสือส่ง</button>
           <button class="b3d" data-act="add" data-key="ttm">💆 จองคิวแผนไทย</button>
@@ -314,7 +316,47 @@
       <div class="ph-t"><h1>${esc(g.title)}</h1><p>${inner.length} ระบบงานภายใน${ext.length ? ` · ${ext.length} ลิงก์ระบบภายนอก` : ''}</p></div>
     </section>
     ${inner.length ? `<h2 class="sec-title">ระบบงาน</h2><div class="tiles big">${inner.map(it => itemTile(it, g)).join('')}</div>` : ''}
-    ${ext.length ? `<h2 class="sec-title">ระบบภายนอกที่เกี่ยวข้อง</h2><div class="tiles big">${ext.map(it => itemTile(it, g)).join('')}</div>` : ''}`;
+    ${ext.length ? `<h2 class="sec-title">ระบบภายนอกที่เกี่ยวข้อง</h2><div class="tiles big">${ext.map(it => itemTile(it, g)).join('')}</div>` : ''}
+    ${g.items.some(i => i.key === 'smarthv') ? '<button type="button" class="linkish" data-act="shv-help">❓ เปิด Smart Home Visit ไม่ได้ / ขึ้น “Sorry, unable to open the file” — ดูวิธีแก้</button>' : ''}`;
+  }
+
+  /* ---------- วิธีแก้เมื่อเปิด Smart Home Visit ไม่ได้ (บัญชี Google หลายบัญชี) ---------- */
+  function shvHelp() {
+    const url = SITE.smartHomeVisitUrl;
+    openModal({
+      title: 'เปิด Smart Home Visit ไม่ได้?',
+      toneCls: 't-chestnut',
+      body: `<div class="help">
+        <p>ถ้าขึ้นข้อความ <b>“Sorry, unable to open the file at this time”</b> หรือ <b>Page Not Found</b>
+        และช่องที่อยู่เว็บด้านบนมีคำว่า <code>/u/1/</code> (หรือ /u/2/) แสดงว่า<b>เบราว์เซอร์นี้เข้าสู่ระบบ Google ไว้หลายบัญชีพร้อมกัน</b>
+        Google จึงพาไปผิดหน้า — ระบบ Smart Home Visit ไม่ได้เสีย</p>
+        <h4>วิธีที่ 1 — เร็วที่สุด</h4>
+        <ol>
+          <li><b>คลิกขวา</b>ที่ปุ่ม Smart Home Visit (สีแดงในเมนูด้านซ้าย)</li>
+          <li>เลือก <b>“เปิดลิงก์ในหน้าต่าง InPrivate”</b> (Microsoft Edge) หรือ <b>“เปิดลิงก์ในหน้าต่างที่ไม่ระบุตัวตน”</b> (Google Chrome)</li>
+          <li>เข้าสู่ระบบด้วยชื่อผู้ใช้และรหัสผ่านตามปกติ</li>
+        </ol>
+        <h4>วิธีที่ 2</h4>
+        <ol>
+          <li>กดปุ่ม <b>“📋 คัดลอกลิงก์”</b> ด้านล่าง</li>
+          <li>กด <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>N</kbd> เพื่อเปิดหน้าต่างส่วนตัว</li>
+          <li>วางลิงก์ด้วย <kbd>Ctrl</kbd> + <kbd>V</kbd> แล้วกด <kbd>Enter</kbd></li>
+        </ol>
+        <h4>แก้ถาวร</h4>
+        <p>ในเบราว์เซอร์ที่ใช้เปิด Smart Home Visit ให้เข้าสู่ระบบ Google ไว้<b>เพียงบัญชีเดียว</b> หรือสร้างโปรไฟล์เบราว์เซอร์แยกไว้สำหรับงานนี้โดยเฉพาะ</p>
+        <label class="copy-row"><span>ลิงก์ Smart Home Visit</span><input id="shvUrl" readonly value="${esc(url)}"></label>
+      </div>`,
+      foot: `<button class="b3d light" data-act="close-modal">ปิด</button>
+        <button class="b3d gold" data-act="shv-copy">📋 คัดลอกลิงก์</button>
+        <a class="b3d danger" href="${esc(url)}" target="_blank" rel="noopener noreferrer">เปิด Smart Home Visit ↗</a>`,
+    });
+  }
+  function shvCopy() {
+    const inp = $('#shvUrl');
+    const done = () => toast('คัดลอกลิงก์แล้ว — กด Ctrl+Shift+N แล้ววางลิงก์');
+    const fallback = () => { if (inp) { inp.focus(); inp.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('กด Ctrl+C เพื่อคัดลอกลิงก์ที่เลือกไว้'); } } };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(SITE.smartHomeVisitUrl).then(done, fallback);
+    else fallback();
   }
 
   /* ---------- หน้า: ทะเบียน ---------- */
@@ -701,6 +743,8 @@
       case 'close-nav': document.body.classList.remove('nav-open'); break;
       case 'csv': exportCSV(d.key); break;
       case 'hide-demo': prefs.hideDemo = 1; savePrefs(); route(true); break;
+      case 'shv-help': shvHelp(); break;
+      case 'shv-copy': shvCopy(); break;
       case 'cal-move': {
         const n = new Date(st.cal.y, st.cal.m + Number(d.n), 1);
         st.cal.y = n.getFullYear(); st.cal.m = n.getMonth(); st.cal.sel = iso(n); route(true); break;
