@@ -65,7 +65,7 @@ window.SITE = {
   */
   window.GROUPS = [
     {
-      key: 'admin', title: 'งานธุรการ', emoji: '📋', tone: 'caramel',
+      key: 'admin', title: 'งานธุรการ', emoji: '📋', tone: 'teal',
       items: [
         { key: 'incoming', label: 'ทะเบียนหนังสือรับ', emoji: '📥', desc: 'ลงรับหนังสือ ติดตามกำหนดดำเนินการ', schema: { dateKey: 'date', fields: [
           { k: 'no', label: 'เลขรับ', type: 'auto' },
@@ -133,7 +133,7 @@ window.SITE = {
       ],
     },
     {
-      key: 'finance', title: 'งานการเงินและบัญชี', emoji: '💰', tone: 'amber',
+      key: 'finance', title: 'งานการเงินและบัญชี', emoji: '💰', tone: 'gold',
       items: [
         { key: 'deeka', label: 'ทะเบียนคุมฎีกาเบิกจ่าย', emoji: '🧾', desc: 'ฎีกาเบิกจ่าย ภาษี ตัดยอดงบตามหมวดอัตโนมัติ', schema: { dateKey: 'date', fields: [
           { k: 'no', label: 'เลขที่ฎีกา', type: 'auto' },
@@ -192,7 +192,7 @@ window.SITE = {
       ],
     },
     {
-      key: 'info', title: 'งานข้อมูลข่าวสารและสารสนเทศ', emoji: '🌐', tone: 'cocoa',
+      key: 'info', title: 'งานข้อมูลข่าวสารและสารสนเทศ', emoji: '🌐', tone: 'deep',
       items: [
         { key: 'news', label: 'ข่าวประชาสัมพันธ์', emoji: '📰', desc: 'ข่าวสาร กิจกรรม ประกาศของ รพ.สต.', schema: { dateKey: 'date', fields: [
           { k: 'date', label: 'วันที่', type: 'date', req: 1, def: 'today' },
@@ -214,7 +214,7 @@ window.SITE = {
       ],
     },
     {
-      key: 'manage', title: 'งานบริหาร', emoji: '🏛️', tone: 'copper',
+      key: 'manage', title: 'งานบริหาร', emoji: '🏛️', tone: 'petrol',
       items: [
         { key: 'personnel', label: 'ทำเนียบบุคลากร', emoji: '👥', desc: 'ข้อมูลบุคลากรและหน้าที่รับผิดชอบ', schema: { fields: [
           { k: 'name', label: 'ชื่อ-สกุล', req: 1 },
@@ -231,7 +231,7 @@ window.SITE = {
       ],
     },
     {
-      key: 'assign', title: 'ปฏิทินมอบหมายงาน', emoji: '🗂️', tone: 'honey',
+      key: 'assign', title: 'ปฏิทินมอบหมายงาน', emoji: '🗂️', tone: 'aqua',
       items: [
         { key: 'assignments', label: 'ปฏิทินมอบหมายงาน', emoji: '📅', desc: 'มอบหมายงาน ประชุม อบรม ออกหน่วยบริการ', page: 'calendar', schema: { dateKey: 'date', timeKey: 'time', fields: [
           { k: 'date', label: 'วันที่', type: 'date', req: 1, def: 'today' },
@@ -245,7 +245,7 @@ window.SITE = {
       ],
     },
     {
-      key: 'supply', title: 'งานครุภัณฑ์-พัสดุ', emoji: '📦', tone: 'terracotta',
+      key: 'supply', title: 'งานครุภัณฑ์-พัสดุ', emoji: '📦', tone: 'sea',
       items: [
         { key: 'equipment', label: 'ทะเบียนครุภัณฑ์', emoji: '🖥️', desc: 'เลขครุภัณฑ์ ที่ตั้ง สถานะการใช้งาน', schema: { fields: [
           { k: 'assetNo', label: 'เลขครุภัณฑ์', req: 1 },
@@ -266,7 +266,7 @@ window.SITE = {
       ],
     },
     {
-      key: 'nursing', title: 'งานการพยาบาล', emoji: '🩺', tone: 'chestnut',
+      key: 'nursing', title: 'งานการพยาบาล', emoji: '🩺', tone: 'coral',
       items: [
         { key: 'elderly', label: 'ทะเบียนผู้สูงอายุ', emoji: '👵', desc: 'รายชื่อผู้สูงอายุ กรองรายหมู่บ้าน', schema: { fields: [
           { k: 'name', label: 'ชื่อ-สกุล', req: 1 },
@@ -307,7 +307,7 @@ window.SITE = {
       ],
     },
     {
-      key: 'thai', title: 'งานคลินิกแพทย์แผนไทย', emoji: '🌿', tone: 'mocha',
+      key: 'thai', title: 'งานคลินิกแพทย์แผนไทย', emoji: '🌿', tone: 'slate',
       items: [
         { key: 'ttm', label: 'ระบบจองคิวบริการแพทย์แผนไทย', emoji: '💆', desc: 'รับจองคิว จัดการคิวรายวัน', schema: { dateKey: 'date', timeKey: 'time', fields: [
           { k: 'date', label: 'วันที่', type: 'date', req: 1, def: 'today' },
@@ -322,7 +322,7 @@ window.SITE = {
       ],
     },
     {
-      key: 'academic', title: 'งานวิชาการและงานสุขภาพภาคประชาชน', emoji: '🎓', tone: 'caramel',
+      key: 'academic', title: 'งานวิชาการและงานสุขภาพภาคประชาชน', emoji: '🎓', tone: 'teal',
       items: [
         { key: 'osm', label: 'ทะเบียน อสม.', emoji: '🙋', desc: 'รายชื่อ อสม. แยกรายหมู่บ้าน', schema: { fields: [
           { k: 'name', label: 'ชื่อ-สกุล', req: 1 },
@@ -342,7 +342,7 @@ window.SITE = {
       ],
     },
     {
-      key: 'disease', title: 'งานส่งเสริมป้องกันโรค', emoji: '🛡️', tone: 'terracotta',
+      key: 'disease', title: 'งานส่งเสริมป้องกันโรค', emoji: '🛡️', tone: 'sea',
       items: [
         { key: 'ncd', label: 'ระบบคัดกรองกลุ่มเสี่ยง NCD', emoji: '🩺', desc: 'คัดกรองเบาหวาน/ความดัน แปลผลอัตโนมัติ', schema: { dateKey: 'date', fields: [
           { k: 'date', label: 'วันที่คัดกรอง', type: 'date', req: 1, def: 'today' },
@@ -374,7 +374,7 @@ window.SITE = {
       ],
     },
     {
-      key: 'ltc', title: 'งานดูแลผู้มีภาวะพึ่งพิง LTC', emoji: '🤝', tone: 'copper',
+      key: 'ltc', title: 'งานดูแลผู้มีภาวะพึ่งพิง LTC', emoji: '🤝', tone: 'petrol',
       items: [
         { key: 'ltcClients', label: 'ทะเบียนผู้มีภาวะพึ่งพิง', emoji: '🛏️', desc: 'คะแนน ADL จัดกลุ่มอัตโนมัติ CM/CG Care Plan', schema: { fields: [
           { k: 'name', label: 'ชื่อ-สกุล', req: 1 },
@@ -389,7 +389,7 @@ window.SITE = {
       ],
     },
     {
-      key: 'visit', title: 'งานเยี่ยมบ้านและงานดูแลผู้ป่วยเชิงรุก', emoji: '🏡', tone: 'chestnut',
+      key: 'visit', title: 'งานเยี่ยมบ้านและงานดูแลผู้ป่วยเชิงรุก', emoji: '🏡', tone: 'coral',
       items: [
         ...(SITE.smartHomeVisitUrl ? [{ key: 'smarthv', label: 'Smart Home Visit (ระบบเยี่ยมบ้าน)', emoji: '📱', desc: 'บันทึกการเยี่ยมบ้าน ภาพถ่าย ปักหมุดบ้าน รายงานประจำเดือน (เปิดในแท็บใหม่)', href: SITE.smartHomeVisitUrl }] : []),
         { key: 'visitPlan', label: 'แผนเยี่ยมบ้านเชิงรุกประจำเดือน', emoji: '🗺️', desc: 'วางแผนและติดตามการเยี่ยมบ้าน', schema: { dateKey: 'date', fields: [

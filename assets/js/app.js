@@ -24,10 +24,10 @@
   /* ---------- ดัชนีเมนู ---------- */
   const ITEM = {};
   GROUPS.forEach(g => g.items.forEach(it => { ITEM[it.key] = { item: it, group: g }; }));
-  const tone = t => 't-' + (t || 'caramel');
+  const tone = t => 't-' + (t || 'teal');
   const ROOM_ICON = { 'ห้องตรวจโรค': '🩺', 'ห้อง ER': '🚨', 'ห้องยา': '💊' };
   const EXTRA_ROOMS = ['เวรนอกเวลา (บ่าย)', 'เวรนอกเวลา (วันหยุด)'];
-  const TYPE_TONE = { 'ประชุม': 't-caramel', 'อบรม': 't-cocoa', 'ปฏิบัติงาน': 't-copper', 'ออกหน่วยบริการ': 't-chestnut' };
+  const TYPE_TONE = { 'ประชุม': 't-teal', 'อบรม': 't-deep', 'ปฏิบัติงาน': 't-petrol', 'ออกหน่วยบริการ': 't-coral' };
 
   /* ---------- ป้ายสถานะ ---------- */
   const BADGE_OF = {};
@@ -130,14 +130,14 @@
         <span><b>${esc(s.orgShort)}</b><small>${esc(s.systemName)}</small></span>
       </a>
       <nav class="nav" aria-label="เมนูหลัก">
-        ${key('#/', '🏠', 't-honey', 'หน้าหลัก (Dashboard)', active === 'home')}
+        ${key('#/', '🏠', 't-aqua', 'หน้าหลัก (Dashboard)', active === 'home')}
         ${SITE.smartHomeVisitUrl ? `<a class="nav-key shv" href="${esc(SITE.smartHomeVisitUrl)}" target="_blank" rel="noopener noreferrer"><span class="ico" aria-hidden="true">📱</span><span class="lbl">Smart Home Visit<small>ระบบเยี่ยมบ้าน · เปิดแท็บใหม่ ↗</small></span></a>
         <button type="button" class="nav-help" data-act="shv-help">❓ เปิดไม่ได้? ดูวิธีแก้</button>` : ''}
         <div class="nav-label">กลุ่มงาน</div>
         ${GROUPS.map(g => key('#/group/' + g.key, g.emoji, tone(g.tone), g.title, active === g.key)).join('')}
         <div class="nav-label">ผู้ดูแลระบบ</div>
-        ${key('#/settings', '⚙️', 't-cocoa', 'ตั้งค่าระบบ', active === 'settings')}
-        ${key('#/backup', '💾', 't-cocoa', 'สำรอง / กู้คืนข้อมูล', active === 'backup')}
+        ${key('#/settings', '⚙️', 't-deep', 'ตั้งค่าระบบ', active === 'settings')}
+        ${key('#/backup', '💾', 't-deep', 'สำรอง / กู้คืนข้อมูล', active === 'backup')}
       </nav>
       <div class="userbox">
         <span class="avatar" aria-hidden="true">👤</span>
@@ -213,14 +213,14 @@
     </section>
 
     <section class="kpis" aria-label="ภาพรวม">
-      ${kpi('#/m/incoming', '📥', 't-caramel', 'หนังสือรับรอดำเนินการ', num(pending.length), overdue ? `⚠️ เกินกำหนด ${overdue} เรื่อง` : 'ไม่มีเรื่องเกินกำหนด')}
-      ${kpi('#/m/leave', '🗓️', 't-honey', 'ใบลารออนุมัติ', num(leaveWait), 'ทะเบียนควบคุมวันลา')}
-      ${kpi('#/m/deeka', '🧾', 't-copper', `เบิกจ่ายปีงบ ${fy} (บาท)`, money(spent), 'จากทะเบียนคุมฎีกา')}
-      ${kpi('#/m/ltcClients', '🛏️', 't-chestnut', 'ผู้มีภาวะพึ่งพิงในความดูแล', num(ltc.length), `ติดเตียง ${bed} ราย`)}
+      ${kpi('#/m/incoming', '📥', 't-teal', 'หนังสือรับรอดำเนินการ', num(pending.length), overdue ? `⚠️ เกินกำหนด ${overdue} เรื่อง` : 'ไม่มีเรื่องเกินกำหนด')}
+      ${kpi('#/m/leave', '🗓️', 't-aqua', 'ใบลารออนุมัติ', num(leaveWait), 'ทะเบียนควบคุมวันลา')}
+      ${kpi('#/m/deeka', '🧾', 't-petrol', `เบิกจ่ายปีงบ ${fy} (บาท)`, money(spent), 'จากทะเบียนคุมฎีกา')}
+      ${kpi('#/m/ltcClients', '🛏️', 't-coral', 'ผู้มีภาวะพึ่งพิงในความดูแล', num(ltc.length), `ติดเตียง ${bed} ราย`)}
     </section>
 
     <section class="grid3">
-      <article class="card t-caramel">
+      <article class="card t-teal">
         <header class="card-h"><span>🩺 เวรประจำวันนี้</span><a class="b3d xs light" href="#/m/duty">✏️ แก้ไขตารางเวร</a></header>
         <div class="card-b">
           <div class="today-bar">🌤️ วัน${D[now.getDay()]} · ${thDateNum(t)}</div>
@@ -234,7 +234,7 @@
         </div>
       </article>
 
-      <article class="card t-mocha">
+      <article class="card t-slate">
         <header class="card-h"><span>💆 คิวแพทย์แผนไทยวันนี้</span><span class="h-right"><span class="count">${ttm.length} คิว</span><a href="#/m/ttm">ดูทั้งหมด</a></span></header>
         <div class="card-b">
           ${ttm.length ? `<ul class="qlist">${ttm.map(r => `
@@ -245,7 +245,7 @@
         </div>
       </article>
 
-      <article class="card t-amber">
+      <article class="card t-gold">
         <header class="card-h"><span>🗂️ มอบหมายงานวันนี้</span><span class="h-right"><span class="count">${asg.length} งาน</span><a href="#/m/assignments">ดูทั้งหมด</a></span></header>
         <div class="card-b">
           ${asg.length ? `<ul class="alist">${asg.map(r => `
@@ -258,22 +258,22 @@
     </section>
 
     <section class="grid2">
-      <article class="card t-terracotta">
+      <article class="card t-sea">
         <header class="card-h"><span>🚑 เวรออกหน่วยปฐมพยาบาล</span><a href="#/m/ems">ดูทั้งหมด</a></header>
         <div class="card-b">${ems.length ? `<ul class="dlist">${ems.map(r => listDate(r, r.event, esc([r.time ? r.time + ' น.' : '', r.place].filter(Boolean).join(' · ')) + `<br>👥 ${esc(r.team)}`)).join('')}</ul>` : empty('ยังไม่มีเวรที่กำลังจะถึง')}</div>
       </article>
-      <article class="card t-chestnut">
+      <article class="card t-coral">
         <header class="card-h"><span>🩸 เวรออกรับบริจาคโลหิต</span><a href="#/m/blood">ดูทั้งหมด</a></header>
         <div class="card-b">${blood.length ? `<ul class="dlist">${blood.map(r => listDate(r, r.place, `${r.time ? esc(r.time) + ' น. · ' : ''}👤 ${esc(r.person)}`)).join('')}</ul>` : empty('ยังไม่มีเวรที่กำลังจะถึง')}</div>
       </article>
     </section>
 
     <section class="grid2 news-row">
-      <article class="card t-cocoa">
+      <article class="card t-deep">
         <header class="card-h"><span>📰 ข่าวประชาสัมพันธ์ล่าสุด</span><a href="#/m/news">ดูทั้งหมด</a></header>
         <div class="card-b">${news.length ? `<ul class="nlist">${news.map(r => `<li><small>${esc(thDate(r.date))}</small><b>${esc(r.title)}</b>${r.detail ? `<span>${esc(r.detail)}</span>` : ''}</li>`).join('')}</ul>` : empty('ยังไม่มีข่าว')}</div>
       </article>
-      <article class="card t-copper">
+      <article class="card t-petrol">
         <header class="card-h"><span>⚡ ทางลัด</span></header>
         <div class="card-b quick">
           ${SITE.smartHomeVisitUrl ? `<a class="b3d danger span2" href="${esc(SITE.smartHomeVisitUrl)}" target="_blank" rel="noopener noreferrer">📱 เปิด Smart Home Visit (ระบบเยี่ยมบ้าน) ↗</a>
@@ -325,7 +325,7 @@
     const url = SITE.smartHomeVisitUrl;
     openModal({
       title: 'เปิด Smart Home Visit ไม่ได้?',
-      toneCls: 't-chestnut',
+      toneCls: 't-coral',
       body: `<div class="help">
         <p>ถ้าขึ้นข้อความ <b>“Sorry, unable to open the file at this time”</b> หรือ <b>Page Not Found</b>
         และช่องที่อยู่เว็บด้านบนมีคำว่า <code>/u/1/</code> (หรือ /u/2/) แสดงว่า<b>เบราว์เซอร์นี้เข้าสู่ระบบ Google ไว้หลายบัญชีพร้อมกัน</b>
@@ -453,7 +453,7 @@
       const cls = ['cal-cell', d.getMonth() !== m && 'out', k === t && 'today', k === sel && 'sel', (d.getDay() === 0 || d.getDay() === 6) && 'wkend'].filter(Boolean).join(' ');
       cells += `<button type="button" class="${cls}" data-act="cal-sel" data-d="${k}" aria-label="${esc(thDate(k))} ${list.length} งาน">
         <span class="dn">${d.getDate()}</span>
-        ${list.slice(0, 3).map(e => `<span class="chip ${TYPE_TONE[e.type] || 't-caramel'}">${esc((e.time ? e.time + ' ' : '') + e.title)}</span>`).join('')}
+        ${list.slice(0, 3).map(e => `<span class="chip ${TYPE_TONE[e.type] || 't-teal'}">${esc((e.time ? e.time + ' ' : '') + e.title)}</span>`).join('')}
         ${list.length > 3 ? `<span class="more">+${list.length - 3} งาน</span>` : ''}
       </button>`;
     }
@@ -478,7 +478,7 @@
         <div class="cal-grid">${cells}</div>
         <div class="legend">${Object.entries(TYPE_TONE).map(([k, c]) => `<span><i class="${c}"></i>${esc(k)}</span>`).join('')}</div>
       </section>
-      <aside class="card t-honey day-panel">
+      <aside class="card t-aqua day-panel">
         <header class="card-h"><span>📅 ${esc(selD ? `วัน${D[selD.getDay()]}ที่ ${thDate(sel)}` : '')}</span></header>
         <div class="card-b">
           ${selList.length ? `<ul class="alist">${selList.map(e => `<li>
@@ -507,7 +507,7 @@
     });
     const total = hits.reduce((a, h) => a + h.rows.length, 0);
     return `${crumbs([['ผลการค้นหา']])}
-    <section class="page-head t-caramel"><span class="ph-ico" aria-hidden="true">🔎</span>
+    <section class="page-head t-teal"><span class="ph-ico" aria-hidden="true">🔎</span>
       <div class="ph-t"><h1>ผลการค้นหา “${esc(q)}”</h1><p>พบ ${num(total)} รายการใน ${hits.length} ทะเบียน${menus.length ? ` · ${menus.length} เมนู` : ''} (ค้นทุกปีงบประมาณ)</p></div></section>
     ${menus.length ? `<h2 class="sec-title">เมนูที่ตรงกัน</h2><div class="tiles big">${menus.map(({ item, group }) => itemTile(item, group)).join('')}</div>` : ''}
     ${hits.map(({ item, group, rows }) => {
@@ -528,7 +528,7 @@
     const F = [['orgShort', 'ชื่อย่อหน่วยงาน'], ['orgFull', 'ชื่อเต็มหน่วยงาน'], ['systemTitle', 'ชื่อระบบ (หัวข้อหน้าหลัก)'], ['systemName', 'ชื่อระบบภาษาอังกฤษ'],
       ['address', 'ที่ตั้ง'], ['director', 'ชื่อผู้อำนวยการ'], ['directorTitle', 'ตำแหน่ง (แสดงต่อท้ายชื่อ)']];
     return `${crumbs([['ตั้งค่าระบบ']])}
-    <section class="page-head t-cocoa"><span class="ph-ico" aria-hidden="true">⚙️</span>
+    <section class="page-head t-deep"><span class="ph-ico" aria-hidden="true">⚙️</span>
       <div class="ph-t"><h1>ตั้งค่าระบบ</h1><p>ข้อมูลหน่วยงานที่แสดงบนหน้าเว็บ หมู่บ้านในเขตรับผิดชอบ และจุดปฏิบัติงานเวรประจำวัน</p></div></section>
     <section class="card plain pad">
       <form id="setForm" class="form-grid">
@@ -544,16 +544,16 @@
   function BackupPage() {
     const counts = Object.values(ITEM).filter(x => x.item.schema).reduce((a, x) => a + Store.all(x.item.key).length, 0);
     return `${crumbs([['สำรอง / กู้คืนข้อมูล']])}
-    <section class="page-head t-cocoa"><span class="ph-ico" aria-hidden="true">💾</span>
+    <section class="page-head t-deep"><span class="ph-ico" aria-hidden="true">💾</span>
       <div class="ph-t"><h1>สำรอง / กู้คืนข้อมูล</h1><p>ข้อมูลทั้งหมด ${num(counts)} รายการ เก็บในเบราว์เซอร์เครื่องนี้${Store.persistent() ? '' : ' (⚠️ เบราว์เซอร์นี้ไม่อนุญาตให้บันทึก — ข้อมูลจะหายเมื่อปิดหน้า)'}</p></div></section>
     <div class="grid3">
-      <section class="card t-caramel"><header class="card-h"><span>⬇️ สำรองข้อมูล</span></header>
+      <section class="card t-teal"><header class="card-h"><span>⬇️ สำรองข้อมูล</span></header>
         <div class="card-b"><p>ดาวน์โหลดข้อมูลทั้งหมดเป็นไฟล์ .json เก็บไว้ หรือนำไปใช้ต่อในเครื่องอื่น</p>
         <button class="b3d block" data-act="dl-backup">ดาวน์โหลดไฟล์สำรอง</button></div></section>
-      <section class="card t-copper"><header class="card-h"><span>⬆️ กู้คืนข้อมูล</span></header>
+      <section class="card t-petrol"><header class="card-h"><span>⬆️ กู้คืนข้อมูล</span></header>
         <div class="card-b"><p>เลือกไฟล์สำรอง (.json) — ข้อมูลปัจจุบันในเครื่องนี้จะถูกแทนที่ทั้งหมด</p>
         <label class="b3d light block file-btn">เลือกไฟล์สำรอง…<input type="file" id="restoreFile" accept=".json,application/json"></label></div></section>
-      <section class="card t-chestnut"><header class="card-h"><span>🧹 เริ่มใช้งานจริง</span></header>
+      <section class="card t-coral"><header class="card-h"><span>🧹 เริ่มใช้งานจริง</span></header>
         <div class="card-b"><p>${Store.isDemo() ? 'ตอนนี้เป็น<b>ข้อมูลตัวอย่าง</b> กดปุ่มด้านล่างเพื่อล้างทิ้งก่อนเริ่มบันทึกข้อมูลจริง' : 'ล้างข้อมูลทั้งหมด หรือโหลดข้อมูลตัวอย่างกลับมาเพื่อทดลอง'}</p>
         <button class="b3d danger block" data-act="ask-reset" data-demo="0">ล้างข้อมูลทั้งหมด</button>
         <button class="b3d light block" data-act="ask-reset" data-demo="1">โหลดข้อมูลตัวอย่างใหม่</button></div></section>
@@ -566,7 +566,7 @@
   function openModal({ title, toneCls, body, foot }) {
     $('#modal-root').innerHTML = `<div class="modal-bg" data-act="modal-bg">
       <div class="modal" role="dialog" aria-modal="true" aria-label="${esc(title)}">
-        <div class="modal-h ${toneCls || 't-caramel'}"><h3>${esc(title)}</h3><button class="x" data-act="close-modal" aria-label="ปิด">✕</button></div>
+        <div class="modal-h ${toneCls || 't-teal'}"><h3>${esc(title)}</h3><button class="x" data-act="close-modal" aria-label="ปิด">✕</button></div>
         <div class="modal-b">${body}</div>${foot ? `<div class="modal-f">${foot}</div>` : ''}
       </div></div>`;
     document.body.classList.add('modal-open');
@@ -582,7 +582,7 @@
     setTimeout(() => el.remove(), 3100);
   }
   function confirmBox(title, msg, okLabel, okAttrs) {
-    openModal({ title, toneCls: 't-chestnut', body: `<p class="confirm-msg">${msg}</p>`,
+    openModal({ title, toneCls: 't-coral', body: `<p class="confirm-msg">${msg}</p>`,
       foot: `<button class="b3d light" data-act="close-modal">ยกเลิก</button><button class="b3d danger" ${okAttrs}>${okLabel}</button>` });
   }
 
