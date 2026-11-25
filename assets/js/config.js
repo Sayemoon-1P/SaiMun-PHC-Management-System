@@ -15,6 +15,8 @@ window.SITE = {
   rooms: ['ห้องตรวจโรค', 'ห้อง ER', 'ห้องยา'],
   /* ลิงก์ระบบเยี่ยมบ้าน Smart Home Visit (ลิงก์สำหรับเจ้าหน้าที่) — ลบหรือเว้นว่าง '' เพื่อซ่อนเมนูนี้ */
   smartHomeVisitUrl: 'https://script.google.com/macros/s/AKfycbywzKD0pDdi04_ufNimXQm-DJ8l2n8_A6auOeZIl1dp81E-Ls402ERvBx9xsGI1taWIeQ/exec',
+  /* ตราสัญลักษณ์ของหน่วยงาน (แทนที่ไฟล์นี้ได้ โดยใช้ชื่อเดิม) */
+  logo: 'assets/img/logo.png',
   storageKey: 'saimun-phc-v1',
 };
 

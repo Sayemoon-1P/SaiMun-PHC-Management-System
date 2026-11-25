@@ -126,7 +126,7 @@
       `<a class="nav-key${on ? ' active' : ''}" href="${href}"${on ? ' aria-current="page"' : ''}><span class="ico ${toneCls}">${ico}</span><span class="lbl">${esc(label)}</span></a>`;
     $('#sidebar').innerHTML = `
       <a class="brand" href="#/">
-        <img src="assets/img/logo.svg" alt="ตรา ${esc(s.orgShort)}" width="54" height="54">
+        <img src="${esc(SITE.logo)}" alt="ตรา ${esc(s.orgShort)}" width="54" height="54">
         <span><b>${esc(s.orgShort)}</b><small>${esc(s.systemName)}</small></span>
       </a>
       <nav class="nav" aria-label="เมนูหลัก">
@@ -198,7 +198,7 @@
 
     return `${demo}
     <section class="hero">
-      <div class="hero-logo"><img src="assets/img/logo.svg" alt="" width="104" height="104"></div>
+      <div class="hero-logo"><img src="${esc(SITE.logo)}" alt="ตราสัญลักษณ์ ${esc(s.orgFull)}" width="118" height="118"></div>
       <div class="hero-txt">
         <div class="hero-date">${esc(thLong(now))}</div>
         <h1>${esc(s.systemTitle)}</h1>
