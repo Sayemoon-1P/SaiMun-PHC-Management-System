@@ -147,9 +147,12 @@ window.Store = (() => {
     } catch (e) { canPersist = false; db = null; }
     if (!db || typeof db !== 'object' || !db.data) {
       db = blank();
-      db.data = Seed.build();
-      db.demo = true;
-      save();
+      // โหมดฐานข้อมูลกลาง (Firebase) ไม่ต้องสร้างข้อมูลตัวอย่างในเครื่อง
+      if (!(window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey)) {
+        db.data = Seed.build();
+        db.demo = true;
+        save();
+      }
     }
   })();
 

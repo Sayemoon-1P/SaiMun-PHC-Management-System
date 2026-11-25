@@ -32,9 +32,9 @@
   /* ---------- ป้ายสถานะ ---------- */
   const BADGE_OF = {};
   [
-    ['ok', ['เสร็จสิ้น', 'อนุมัติ', 'ยืนยันแล้ว', 'ส่งใช้แล้ว', 'ใช้งานได้', 'มารับบริการแล้ว', 'ปกติ', 'ติดสังคม', 'เบิกจ่ายแล้ว', 'ตรวจรับแล้ว', 'ส่งแล้ว', 'ลงนามแล้ว', 'เยี่ยมแล้ว', 'ปิดเคส', 'เพียงพอ', 'มีบัตร', 'ได้รับเบี้ย', 'มี Care Plan', 'กินยาสม่ำเสมอ', 'ต่ำ']],
-    ['warn', ['รอดำเนินการ', 'กำลังดำเนินการ', 'รออนุมัติ', 'รอยืนยัน', 'ยังไม่ส่งใช้', 'เสี่ยง', 'ติดบ้าน', 'รอเบิก', 'ใกล้หมด', 'ร่าง', 'เลื่อน', 'ยังไม่มีบัตร', 'ยังไม่ได้รับ', 'ยังไม่มี', 'ปานกลาง', 'ดำเนินการ', 'เปิดเคส', 'ตามแผน', 'สอบสวนแล้ว']],
-    ['bad', ['ไม่อนุมัติ', 'ยกเลิก', 'ชำรุด/ส่งซ่อม', 'สงสัยป่วย', 'ติดเตียง', 'ขาดยา', 'สูง (SMI-V)', 'จำหน่ายแล้ว', 'เกินกำหนด']],
+    ['ok', ['เสร็จสิ้น', 'อนุมัติ', 'ยืนยันแล้ว', 'ส่งใช้แล้ว', 'ใช้งานได้', 'มารับบริการแล้ว', 'ปกติ', 'ติดสังคม', 'เบิกจ่ายแล้ว', 'ตรวจรับแล้ว', 'ส่งแล้ว', 'ลงนามแล้ว', 'เยี่ยมแล้ว', 'ปิดเคส', 'เพียงพอ', 'มีบัตร', 'ได้รับเบี้ย', 'มี Care Plan', 'กินยาสม่ำเสมอ', 'ต่ำ', 'ใช้งาน']],
+    ['warn', ['รอดำเนินการ', 'กำลังดำเนินการ', 'รออนุมัติ', 'รอยืนยัน', 'ยังไม่ส่งใช้', 'เสี่ยง', 'ติดบ้าน', 'รอเบิก', 'ใกล้หมด', 'ร่าง', 'เลื่อน', 'ยังไม่มีบัตร', 'ยังไม่ได้รับ', 'ยังไม่มี', 'ปานกลาง', 'ดำเนินการ', 'เปิดเคส', 'ตามแผน', 'สอบสวนแล้ว', 'รอตั้งรหัสผ่านใหม่']],
+    ['bad', ['ไม่อนุมัติ', 'ยกเลิก', 'ชำรุด/ส่งซ่อม', 'สงสัยป่วย', 'ติดเตียง', 'ขาดยา', 'สูง (SMI-V)', 'จำหน่ายแล้ว', 'เกินกำหนด', 'ระงับการใช้งาน']],
   ].forEach(([t, arr]) => arr.forEach(v => { BADGE_OF[v] = t; }));
   const badge = v => `<span class="badge b-${BADGE_OF[v] || 'info'}">${esc(v)}</span>`;
 
@@ -89,14 +89,30 @@
     if (f.st && sf) rows = rows.filter(r => String(rawOf(sf, r)) === f.st);
     return sortRows(rows.slice(), s);
   }
+  function maxNo(key, s, af, fy) {
+    return Store.all(key)
+      .filter(r => fyOf((s.dateKey && r[s.dateKey]) || '') === fy)
+      .reduce((m, r) => Math.max(m, parseInt(String(r[af.k] || '').split('/')[0], 10) || 0), 0);
+  }
   function nextNo(key, s, rec, af) {
     const fy = fyOf((s.dateKey && rec[s.dateKey]) || today());
-    const used = Store.all(key)
-      .filter(r => fyOf((s.dateKey && r[s.dateKey]) || '') === fy)
-      .map(r => parseInt(String(r[af.k] || '').split('/')[0], 10) || 0);
-    const n = (used.length ? Math.max(...used) : 0) + 1;
-    return `${String(n).padStart(3, '0')}/${fy}`;
+    return `${String(maxNo(key, s, af, fy) + 1).padStart(3, '0')}/${fy}`;
   }
+  /* บันทึกรายการใหม่ (โหมดฐานข้อมูลกลางออกเลขผ่าน transaction เพื่อไม่ให้เลขซ้ำเมื่อบันทึกพร้อมกันหลายเครื่อง) */
+  function saveNew(key, s, rec) {
+    const af = autoField(s);
+    if (af && Store.addNumbered) {
+      const fy = fyOf((s.dateKey && rec[s.dateKey]) || today());
+      return Store.addNumbered(key, rec, af.k, fy, maxNo(key, s, af, fy));
+    }
+    if (af) rec[af.k] = nextNo(key, s, rec, af);
+    return Promise.resolve(Store.add(key, rec));
+  }
+
+  /* ---------- โหมดฐานข้อมูลกลาง (Firebase) ---------- */
+  const CLOUD = !!window.Cloud;
+  const isAdmin = () => !CLOUD || Cloud.isAdmin();
+  const errText = e => (CLOUD ? Cloud.errText(e) : ((e && e.message) || String(e)));
   function defaults(s, preset) {
     const o = {};
     s.fields.forEach(f => {
@@ -117,6 +133,8 @@
     ` <span aria-hidden="true">›</span> ${href ? `<a href="${href}">${esc(label)}</a>` : `<b>${esc(label)}</b>`}`).join('')}</nav>`;
 
   const empty = (msg, btn) => `<div class="empty"><div class="empty-ico">🗂️</div><p>${msg}</p>${btn || ''}</div>`;
+  const loadingBox = () => '<div class="empty"><span class="spin" aria-hidden="true"></span><p>กำลังโหลดข้อมูล…</p></div>';
+  const NoPerm = () => `<section class="card plain pad">${empty('หน้านี้สำหรับผู้ดูแลระบบเท่านั้น', '<a class="b3d" href="#/">กลับหน้าหลัก</a>')}</section>`;
 
   function renderSidebar(active) {
     const s = S();
@@ -135,16 +153,26 @@
         <button type="button" class="nav-help" data-act="shv-help">❓ เปิดไม่ได้? ดูวิธีแก้</button>` : ''}
         <div class="nav-label">กลุ่มงาน</div>
         ${GROUPS.map(g => key('#/group/' + g.key, g.emoji, tone(g.tone), g.title, active === g.key)).join('')}
-        <div class="nav-label">ผู้ดูแลระบบ</div>
+        ${isAdmin() ? `<div class="nav-label">ผู้ดูแลระบบ</div>
+        ${CLOUD ? key('#/users', '👥', 't-deep', 'ผู้ใช้งานระบบ', active === 'users') : ''}
         ${key('#/settings', '⚙️', 't-deep', 'ตั้งค่าระบบ', active === 'settings')}
-        ${key('#/backup', '💾', 't-deep', 'สำรอง / กู้คืนข้อมูล', active === 'backup')}
+        ${key('#/backup', '💾', 't-deep', 'สำรอง / กู้คืนข้อมูล', active === 'backup')}` : ''}
       </nav>
-      <div class="userbox">
-        <span class="avatar" aria-hidden="true">👤</span>
-        <span><b>ผู้ดูแลระบบ</b><small>${Store.isDemo() ? 'โหมดต้นแบบ · ข้อมูลตัวอย่าง' : 'ข้อมูลเก็บในเครื่องนี้'}</small></span>
-      </div>`;
+      ${userBox()}`;
     const nav2 = $('#sidebar .nav');
     if (nav2) nav2.scrollTop = scroll;
+  }
+  function userBox() {
+    if (!CLOUD) {
+      return `<div class="userbox"><span class="avatar" aria-hidden="true">👤</span>
+        <span><b>ผู้ดูแลระบบ</b><small>${Store.isDemo() ? 'โหมดต้นแบบ · ข้อมูลตัวอย่าง' : 'ข้อมูลเก็บในเครื่องนี้'}</small></span></div>`;
+    }
+    const m = Cloud.me() || {};
+    return `<div class="userbox"><span class="avatar" aria-hidden="true">👤</span>
+      <span class="ub-t"><b>${esc(m.name || m.username || '')}</b>
+        <small>${m.role === 'admin' ? 'ผู้ดูแลระบบ' : 'เจ้าหน้าที่'} · ${esc(m.username || '')}</small>
+        <span class="ub-act"><button type="button" data-act="pw">🔑 เปลี่ยนรหัสผ่าน</button><button type="button" data-act="logout">⎋ ออกจากระบบ</button></span>
+      </span></div>`;
   }
 
   function buildFY() {
@@ -364,6 +392,7 @@
     const s = ITEM[key].item.schema;
     const rows = filteredRows(key);
     const cols = s.fields.filter(f => !f.hide);
+    if (Store.loaded && !Store.loaded(key)) return loadingBox();
     if (!rows.length) {
       const f = st.filters[key] || {};
       return empty(f.q || f.v || f.st ? 'ไม่พบรายการตามเงื่อนไขที่ค้นหา' : 'ยังไม่มีรายการในปีงบประมาณนี้',
@@ -541,7 +570,147 @@
   }
 
   /* ---------- หน้า: สำรอง/กู้คืน ---------- */
+  function localSavedData() {
+    try {
+      const d = JSON.parse(localStorage.getItem(SITE.storageKey));
+      if (!d || !d.data || d.demo) return null;
+      const n = Object.values(d.data).reduce((a, v) => a + (Array.isArray(v) ? v.length : 0), 0);
+      return n ? { db: d, count: n } : null;
+    } catch (e) { return null; }
+  }
+  function CloudBackupPage() {
+    const local = localSavedData();
+    return `${crumbs([['สำรอง / กู้คืนข้อมูล']])}
+    <section class="page-head t-deep"><span class="ph-ico" aria-hidden="true">💾</span>
+      <div class="ph-t"><h1>สำรอง / กู้คืนข้อมูล</h1><p>ข้อมูลเก็บบนฐานข้อมูลกลาง Firebase (Cloud Firestore) — ทุกเครื่องเห็นข้อมูลชุดเดียวกัน</p></div></section>
+    <div class="grid3">
+      <section class="card t-teal"><header class="card-h"><span>⬇️ สำรองข้อมูล</span></header>
+        <div class="card-b"><p>ดาวน์โหลดข้อมูลทั้งหมดจากฐานข้อมูลกลางเป็นไฟล์ .json เก็บไว้ (แนะนำทุกสิ้นเดือน)</p>
+        <button class="b3d block" data-act="dl-backup">ดาวน์โหลดไฟล์สำรอง</button></div></section>
+      <section class="card t-petrol"><header class="card-h"><span>⬆️ นำเข้าข้อมูล</span></header>
+        <div class="card-b"><p>เลือกไฟล์สำรอง (.json) เพื่อนำข้อมูลเข้าฐานข้อมูลกลาง — รายการที่รหัสตรงกันจะถูกเขียนทับ</p>
+        <label class="b3d light block file-btn">เลือกไฟล์สำรอง…<input type="file" id="restoreFile" accept=".json,application/json"></label>
+        ${local ? `<button class="b3d gold block" data-act="import-local">นำเข้าข้อมูลที่เคยบันทึกในเครื่องนี้ (${num(local.count)} รายการ)</button>` : ''}</div></section>
+      <section class="card t-coral"><header class="card-h"><span>🧹 ล้างข้อมูลทั้งหมด</span></header>
+        <div class="card-b"><p>ลบทุกรายการในทะเบียนบนฐานข้อมูลกลาง (บัญชีผู้ใช้และการตั้งค่ายังอยู่) — ใช้เมื่อจำเป็นเท่านั้น และควรดาวน์โหลดไฟล์สำรองก่อน</p>
+        <button class="b3d danger block" data-act="ask-reset" data-demo="0">ล้างข้อมูลทั้งหมด</button></div></section>
+    </div>`;
+  }
+
+  /* ---------- หน้า: ผู้ใช้งานระบบ (Firebase) ---------- */
+  const roleLabel = r => (r === 'admin' ? 'ผู้ดูแลระบบ' : 'เจ้าหน้าที่');
+  const memberStatus = m => (m.active !== true ? 'ระงับการใช้งาน' : m.mustChangePassword ? 'รอตั้งรหัสผ่านใหม่' : 'ใช้งาน');
+  function UsersPage() {
+    const list = Cloud.members().slice().sort((a, b) =>
+      (b.role === 'admin') - (a.role === 'admin') || String(a.username || '').localeCompare(String(b.username || '')));
+    const meUid = (Cloud.me() || {}).uid;
+    const table = !Store.loaded('members') ? loadingBox() : `<div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th class="idx">#</th><th>ชื่อผู้ใช้</th><th>ชื่อ-สกุล</th><th>ตำแหน่ง</th><th>สิทธิ์</th><th>สถานะ</th><th class="act">จัดการ</th></tr></thead>
+      <tbody>${list.map((m, i) => `<tr>
+        <td class="idx">${i + 1}</td>
+        <td data-label="ชื่อผู้ใช้"><b class="docno">${esc(m.username || '')}</b>${m.id === Cloud.ownerUid ? ' <span class="badge b-info">เจ้าของระบบ</span>' : ''}${m.id === meUid ? ' <small class="muted">(คุณ)</small>' : ''}</td>
+        <td data-label="ชื่อ-สกุล">${esc(m.name || '')}</td>
+        <td data-label="ตำแหน่ง">${esc(m.position || '') || '<span class="dash">–</span>'}</td>
+        <td data-label="สิทธิ์">${badge(roleLabel(m.role))}</td>
+        <td data-label="สถานะ">${badge(memberStatus(m))}</td>
+        <td class="act"><button class="b3d xs light" data-act="user-edit" data-id="${esc(m.id)}">✏️ แก้ไข</button></td>
+      </tr>`).join('')}</tbody></table></div>
+      <div class="tbl-foot">ผู้ใช้งาน ${num(list.length)} บัญชี</div>`;
+    return `${crumbs([['ผู้ใช้งานระบบ']])}
+    <section class="page-head t-deep"><span class="ph-ico" aria-hidden="true">👥</span>
+      <div class="ph-t"><h1>ผู้ใช้งานระบบ</h1><p>เพิ่มบัญชีเจ้าหน้าที่ กำหนดสิทธิ์ และระงับการใช้งาน (เฉพาะผู้ดูแลระบบ)</p></div>
+      <div class="ph-act"><button class="b3d gold" data-act="user-add">＋ เพิ่มผู้ใช้งาน</button></div></section>
+    <section class="card plain">${table}</section>
+    <section class="card plain pad note">
+      <b>ℹ️ เมื่อเจ้าหน้าที่ลืมรหัสผ่าน</b> — Firebase แบบฟรีไม่ให้ผู้ดูแลระบบตั้งรหัสผ่านแทนผู้อื่นได้
+      ให้กด “แก้ไข” แล้วเลือก “ระงับการใช้งาน” บัญชีเดิม จากนั้นสร้างบัญชีใหม่ (เช่น เติมเลข 2 ท้ายชื่อผู้ใช้)
+    </section>`;
+  }
+  function openUserForm(uid) {
+    const m = uid ? Cloud.members().find(x => x.id === uid) : null;
+    if (uid && !m) { toast('ไม่พบบัญชีนี้'); return; }
+    const owner = !!m && m.id === Cloud.ownerUid;
+    const lock = owner ? ' disabled' : '';
+    openModal({
+      title: m ? `แก้ไขผู้ใช้งาน · ${m.username}` : 'เพิ่มผู้ใช้งานใหม่',
+      toneCls: 't-deep',
+      body: `<form id="${m ? 'memberForm' : 'newUserForm'}" class="form-grid" data-uid="${m ? esc(m.id) : ''}" novalidate>
+        ${m ? '' : `<label class="fld"><span>ชื่อผู้ใช้ (ใช้เข้าสู่ระบบ) <b class="req">*</b></span>
+          <input name="username" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="เช่น somchai" required>
+          <small class="muted">ภาษาอังกฤษตัวเล็ก ตัวเลข หรือ . _ - ยาว 3–30 ตัว (เปลี่ยนภายหลังไม่ได้)</small></label>`}
+        <label class="fld${m ? ' wide' : ''}"><span>ชื่อ-สกุล <b class="req">*</b></span><input name="name" value="${esc(m ? m.name : '')}" required></label>
+        <label class="fld"><span>ตำแหน่ง</span><input name="position" value="${esc(m ? m.position : '')}"></label>
+        <label class="fld"><span>สิทธิ์</span><select name="role"${lock}>
+          <option value="staff"${m && m.role !== 'admin' ? ' selected' : ''}>เจ้าหน้าที่ (บันทึก/แก้ไขทะเบียน)</option>
+          <option value="admin"${m && m.role === 'admin' ? ' selected' : ''}>ผู้ดูแลระบบ (จัดการผู้ใช้/ตั้งค่า/สำรองข้อมูล)</option></select></label>
+        ${m ? `<label class="fld"><span>สถานะ</span><select name="active"${lock}>
+          <option value="1"${m.active === true ? ' selected' : ''}>ใช้งาน</option>
+          <option value="0"${m.active !== true ? ' selected' : ''}>ระงับการใช้งาน</option></select></label>` : ''}
+        ${owner ? '<p class="wide muted">บัญชีเจ้าของระบบเปลี่ยนสิทธิ์หรือระงับไม่ได้</p>' : ''}
+        ${m ? '' : '<p class="wide muted">ระบบจะสร้างรหัสผ่านชั่วคราวให้ และให้เจ้าหน้าที่ตั้งรหัสผ่านใหม่เมื่อเข้าระบบครั้งแรก</p>'}
+        <p class="form-err" id="userErr" role="alert" hidden></p>
+      </form>`,
+      foot: `<button class="b3d light" data-act="close-modal" type="button">ยกเลิก</button>
+        <button class="b3d gold" type="submit" form="${m ? 'memberForm' : 'newUserForm'}">💾 ${m ? 'บันทึก' : 'สร้างบัญชี'}</button>`,
+    });
+  }
+  function showNewUser(r, name) {
+    openModal({
+      title: 'สร้างบัญชีเรียบร้อย', toneCls: 't-teal',
+      body: `<div class="help">
+        <p>แจ้งข้อมูลนี้ให้ <b>${esc(name)}</b> (แสดงครั้งเดียว — กรุณาจดหรือคัดลอกไว้)</p>
+        <div class="cred"><span>ชื่อผู้ใช้</span><b>${esc(r.username)}</b><span>รหัสผ่านชั่วคราว</span><b class="mono">${esc(r.password)}</b></div>
+        <p class="muted">เมื่อเข้าสู่ระบบครั้งแรก ระบบจะให้ตั้งรหัสผ่านใหม่ของตัวเอง</p></div>`,
+      foot: `<button class="b3d light" data-act="copy-text" data-text="${esc(`ชื่อผู้ใช้: ${r.username}\nรหัสผ่านชั่วคราว: ${r.password}\nเข้าระบบที่: ${location.href.split('#')[0]}`)}">📋 คัดลอก</button>
+        <button class="b3d gold" data-act="close-modal">เสร็จสิ้น</button>`,
+    });
+  }
+
+  /* ---------- หน้าจอเข้าสู่ระบบ / เปลี่ยนรหัสผ่าน (Firebase) ---------- */
+  function showAuth(s) {
+    const busy = s.status === 'loading';
+    const msg = (s.status === 'denied' || s.status === 'error') ? s.message : '';
+    $('#auth-root').innerHTML = `<div class="auth-screen">
+      <form id="loginForm" class="auth-card" novalidate>
+        <img src="${esc(SITE.logo)}" alt="" width="104" height="104">
+        <h1>${esc(SITE.orgShort)}</h1>
+        <p class="auth-sub">${esc(SITE.systemTitle)}</p>
+        ${busy ? '<div class="auth-wait"><span class="spin" aria-hidden="true"></span> กำลังเชื่อมต่อ…</div>' : `
+        <label class="fld"><span>ชื่อผู้ใช้</span><input name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+        <label class="fld"><span>รหัสผ่าน</span><input name="password" type="password" autocomplete="current-password" required></label>
+        <p class="form-err" id="loginErr" role="alert"${msg ? '' : ' hidden'}>${esc(msg)}</p>
+        <button class="b3d gold block" type="submit">🔐 เข้าสู่ระบบ</button>
+        <p class="auth-note">ลืมรหัสผ่าน หรือยังไม่มีบัญชี — ติดต่อผู้ดูแลระบบของ รพ.สต.</p>`}
+      </form></div>`;
+    document.body.classList.add('auth-open');
+    const u = $('#loginForm [name=username]');
+    if (u) u.focus();
+  }
+  function hideAuth() { $('#auth-root').innerHTML = ''; document.body.classList.remove('auth-open'); }
+  function openPwModal(forced) {
+    openModal({
+      title: forced ? 'ตั้งรหัสผ่านใหม่ก่อนเริ่มใช้งาน' : 'เปลี่ยนรหัสผ่าน', toneCls: 't-deep', locked: forced,
+      body: `<form id="pwForm" class="form-grid" novalidate>
+        ${forced ? '<p class="wide">บัญชีนี้ใช้รหัสผ่านชั่วคราว กรุณาตั้งรหัสผ่านใหม่ของคุณเอง (อย่างน้อย 8 ตัวอักษร)</p>' : ''}
+        <label class="fld wide"><span>รหัสผ่านปัจจุบัน${forced ? ' (รหัสชั่วคราว)' : ''}</span><input name="cur" type="password" autocomplete="current-password" required></label>
+        <label class="fld"><span>รหัสผ่านใหม่</span><input name="n1" type="password" autocomplete="new-password" required></label>
+        <label class="fld"><span>ยืนยันรหัสผ่านใหม่</span><input name="n2" type="password" autocomplete="new-password" required></label>
+        <p class="form-err" id="pwErr" role="alert" hidden></p>
+      </form>`,
+      foot: `${forced ? '<button class="b3d light" data-act="logout" type="button">ออกจากระบบ</button>' : '<button class="b3d light" data-act="close-modal" type="button">ยกเลิก</button>'}
+        <button class="b3d gold" type="submit" form="pwForm">💾 บันทึกรหัสผ่านใหม่</button>`,
+    });
+  }
+  const showErr = (id, msg) => { const el = $('#' + id); if (el) { el.hidden = false; el.textContent = msg; } };
+  function busyBtn(form, on, label) {
+    const b = document.querySelector(`[form="${form.id}"][type=submit]`) || form.querySelector('[type=submit]');
+    if (!b) return;
+    if (on) { b.dataset.label = b.innerHTML; b.disabled = true; b.textContent = label || 'กำลังบันทึก…'; }
+    else { b.disabled = false; if (b.dataset.label) b.innerHTML = b.dataset.label; }
+  }
+
   function BackupPage() {
+    if (CLOUD) return CloudBackupPage();
     const counts = Object.values(ITEM).filter(x => x.item.schema).reduce((a, x) => a + Store.all(x.item.key).length, 0);
     return `${crumbs([['สำรอง / กู้คืนข้อมูล']])}
     <section class="page-head t-deep"><span class="ph-ico" aria-hidden="true">💾</span>
@@ -563,10 +732,10 @@
   const NotFound = () => `<section class="card plain pad">${empty('ไม่พบหน้าที่ต้องการ', '<a class="b3d" href="#/">กลับหน้าหลัก</a>')}</section>`;
 
   /* ---------- Modal / Toast ---------- */
-  function openModal({ title, toneCls, body, foot }) {
-    $('#modal-root').innerHTML = `<div class="modal-bg" data-act="modal-bg">
+  function openModal({ title, toneCls, body, foot, locked }) {
+    $('#modal-root').innerHTML = `<div class="modal-bg" data-act="modal-bg"${locked ? ' data-locked="1"' : ''}>
       <div class="modal" role="dialog" aria-modal="true" aria-label="${esc(title)}">
-        <div class="modal-h ${toneCls || 't-teal'}"><h3>${esc(title)}</h3><button class="x" data-act="close-modal" aria-label="ปิด">✕</button></div>
+        <div class="modal-h ${toneCls || 't-teal'}"><h3>${esc(title)}</h3>${locked ? '' : '<button class="x" data-act="close-modal" aria-label="ปิด">✕</button>'}</div>
         <div class="modal-b">${body}</div>${foot ? `<div class="modal-f">${foot}</div>` : ''}
       </div></div>`;
     document.body.classList.add('modal-open');
@@ -630,12 +799,12 @@
       foot: `<button class="b3d light" data-act="close-modal" type="button">ยกเลิก</button><button class="b3d gold" type="submit" form="recForm">💾 บันทึก</button>`,
     });
   }
-  function submitRecord(form) {
+  async function submitRecord(form) {
     const key = form.dataset.key, id = form.dataset.id;
     const s = ITEM[key].item.schema;
     const missing = s.fields.filter(f => f.req && !f.compute && f.type !== 'auto' && !String(form.elements[f.k] ? form.elements[f.k].value : '').trim());
     if (missing.length) {
-      const err = $('#formErr'); err.hidden = false; err.textContent = 'กรุณากรอก: ' + missing.map(f => f.label).join(', ');
+      showErr('formErr', 'กรุณากรอก: ' + missing.map(f => f.label).join(', '));
       form.elements[missing[0].k].focus();
       return;
     }
@@ -646,18 +815,24 @@
       if ((f.type === 'number' || f.type === 'money') && v !== '') v = Number(v);
       rec[f.k] = v;
     });
-    let msg = 'บันทึกการแก้ไขแล้ว';
-    if (id) Store.update(key, id, rec);
-    else {
-      const af = autoField(s);
-      if (af) rec[af.k] = nextNo(key, s, rec, af);
-      const r = Store.add(key, rec);
-      msg = af ? `บันทึกแล้ว · ออกเลข ${r[af.k]}` : 'บันทึกรายการแล้ว';
+    busyBtn(form, true);
+    try {
+      let msg = 'บันทึกการแก้ไขแล้ว';
+      if (id) await Store.update(key, id, rec);
+      else {
+        const af = autoField(s);
+        const r = await saveNew(key, s, rec);
+        msg = af ? `บันทึกแล้ว · ออกเลข ${r[af.k]}` : 'บันทึกรายการแล้ว';
+      }
+      if (key === 'assignments' && st.cal && rec.date) {
+        const d = U.parse(rec.date); st.cal = { y: d.getFullYear(), m: d.getMonth(), sel: rec.date };
+      }
+      closeModal(); toast(msg); route(true);
+    } catch (err) {
+      console.error(err);
+      busyBtn(form, false);
+      showErr('formErr', 'บันทึกไม่สำเร็จ: ' + errText(err));
     }
-    if (key === 'assignments' && st.cal && rec.date) {
-      const d = U.parse(rec.date); st.cal = { y: d.getFullYear(), m: d.getMonth(), sel: rec.date };
-    }
-    closeModal(); toast(msg); route(true);
   }
 
   /* ---------- ส่งออก / สำรอง ---------- */
@@ -679,6 +854,7 @@
 
   /* ---------- Router ---------- */
   function route(keepScroll) {
+    if (CLOUD && !authed) return; // ยังไม่เข้าสู่ระบบ: ไม่แสดงข้อมูลใด ๆ
     const h = location.hash.slice(1) || '/';
     const [path, qs] = h.split('?');
     const q = new URLSearchParams(qs || '');
@@ -700,8 +876,9 @@
         active = ref ? ref.group.key : ''; title = ref ? ref.item.label : '';
         html = ref ? ModulePage(ref) : NotFound();
       } else if (p[0] === 'search') { title = 'ค้นหา'; html = SearchPage(q.get('q') || ''); $('#q').value = q.get('q') || ''; }
-      else if (p[0] === 'settings') { active = 'settings'; title = 'ตั้งค่าระบบ'; html = SettingsPage(); }
-      else if (p[0] === 'backup') { active = 'backup'; title = 'สำรองข้อมูล'; html = BackupPage(); }
+      else if (p[0] === 'settings') { active = 'settings'; title = 'ตั้งค่าระบบ'; html = isAdmin() ? SettingsPage() : NoPerm(); }
+      else if (p[0] === 'backup') { active = 'backup'; title = 'สำรองข้อมูล'; html = isAdmin() ? BackupPage() : NoPerm(); }
+      else if (p[0] === 'users' && CLOUD) { active = 'users'; title = 'ผู้ใช้งานระบบ'; html = isAdmin() ? UsersPage() : NoPerm(); }
       else html = NotFound();
     } catch (err) {
       console.error(err);
@@ -711,9 +888,24 @@
     $('#view').innerHTML = html;
     const s = S();
     document.title = `${title ? title + ' · ' : ''}${s.orgShort} · ${s.systemName}`;
-    document.body.classList.remove('nav-open');
-    if (!keepScroll) window.scrollTo(0, 0);
+    if (!keepScroll) { document.body.classList.remove('nav-open'); window.scrollTo(0, 0); }
     tick();
+  }
+
+  /* อัปเดตหน้าจอเมื่อข้อมูลบนฐานข้อมูลกลางเปลี่ยน (จากเครื่องอื่นหรือโหลดเสร็จ) โดยไม่รบกวนช่องที่กำลังพิมพ์ */
+  let renderTimer = null;
+  function scheduleRender() {
+    if (!started || !authed) return;
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(() => {
+      if (!started || !authed) return;
+      const ae = document.activeElement;
+      if (ae && $('#view').contains(ae) && ae.matches('input, textarea, select')) {
+        if (ae.dataset.filter && $('#tbl')) $('#tbl').innerHTML = tableHTML(ae.dataset.key);
+        return;
+      }
+      route(true);
+    }, 80);
   }
 
   function tick() {
@@ -736,9 +928,39 @@
         confirmBox('ยืนยันการลบ', `ต้องการลบรายการนี้ใช่หรือไม่?<br><b>${esc(label)}</b>`, '🗑️ ลบรายการ', `data-act="del-yes" data-key="${esc(d.key)}" data-id="${esc(d.id)}"`);
         break;
       }
-      case 'del-yes': Store.remove(d.key, d.id); closeModal(); toast('ลบรายการแล้ว'); route(true); break;
+      case 'del-yes':
+        a.disabled = true;
+        Promise.resolve(Store.remove(d.key, d.id))
+          .then(() => { closeModal(); toast('ลบรายการแล้ว'); route(true); })
+          .catch(err => { a.disabled = false; toast('ลบไม่สำเร็จ: ' + errText(err)); });
+        break;
       case 'close-modal': closeModal(); break;
-      case 'modal-bg': if (e.target === a) closeModal(); break;
+      case 'modal-bg': if (e.target === a && !a.dataset.locked) closeModal(); break;
+      case 'logout': closeModal(); Cloud.signOut(); break;
+      case 'pw': openPwModal(false); break;
+      case 'user-add': openUserForm(null); break;
+      case 'user-edit': openUserForm(d.id); break;
+      case 'copy-text': {
+        const done = () => toast('คัดลอกแล้ว');
+        if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(d.text).then(done, () => toast('คัดลอกไม่ได้ — กรุณาจดไว้'));
+        else toast('คัดลอกไม่ได้ในเบราว์เซอร์นี้ — กรุณาจดไว้');
+        break;
+      }
+      case 'import-local': {
+        const local = localSavedData();
+        if (!local) break;
+        confirmBox('นำเข้าข้อมูลจากเครื่องนี้', `นำข้อมูล ${num(local.count)} รายการที่เคยบันทึกในเบราว์เซอร์เครื่องนี้ ขึ้นฐานข้อมูลกลาง?`, 'นำเข้า', 'data-act="import-local-yes"');
+        break;
+      }
+      case 'import-local-yes': {
+        const local = localSavedData();
+        if (!local) break;
+        a.disabled = true; a.textContent = 'กำลังนำเข้า…';
+        Store.importJSON(local.db)
+          .then(n => { closeModal(); toast(`นำเข้าแล้ว ${num(n)} รายการ`); route(true); })
+          .catch(err => { a.disabled = false; a.textContent = 'นำเข้า'; toast('นำเข้าไม่สำเร็จ: ' + errText(err)); });
+        break;
+      }
       case 'toggle-nav': document.body.classList.toggle('nav-open'); break;
       case 'close-nav': document.body.classList.remove('nav-open'); break;
       case 'csv': exportCSV(d.key); break;
@@ -755,13 +977,25 @@
         if (window.innerWidth < 1100) { const p = $('.day-panel'); if (p) p.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
         break;
       }
-      case 'dl-backup': download(`สำรองข้อมูล_รพสต_ทรายมูล_${today()}.json`, Store.exportJSON(), 'application/json'); toast('ดาวน์โหลดไฟล์สำรองแล้ว'); break;
+      case 'dl-backup':
+        a.disabled = true;
+        Promise.resolve(Store.exportJSON())
+          .then(txt => { download(`สำรองข้อมูล_รพสต_ทรายมูล_${today()}.json`, txt, 'application/json'); toast('ดาวน์โหลดไฟล์สำรองแล้ว'); })
+          .catch(err => toast('สำรองข้อมูลไม่สำเร็จ: ' + errText(err)))
+          .finally(() => { a.disabled = false; });
+        break;
       case 'ask-reset':
         confirmBox(d.demo === '1' ? 'โหลดข้อมูลตัวอย่างใหม่' : 'ล้างข้อมูลทั้งหมด',
-          'ข้อมูลทั้งหมดในเครื่องนี้จะถูกลบ (การตั้งค่าหน่วยงานยังคงอยู่) แนะนำให้กด “ดาวน์โหลดไฟล์สำรอง” ก่อน<br>ต้องการดำเนินการต่อหรือไม่?',
+          CLOUD ? 'ทุกรายการในฐานข้อมูลกลางจะถูกลบ และ<b>ทุกเครื่องจะไม่เห็นข้อมูลอีก</b> (บัญชีผู้ใช้และการตั้งค่ายังอยู่) แนะนำให้กด “ดาวน์โหลดไฟล์สำรอง” ก่อน<br>ต้องการดำเนินการต่อหรือไม่?'
+            : 'ข้อมูลทั้งหมดในเครื่องนี้จะถูกลบ (การตั้งค่าหน่วยงานยังคงอยู่) แนะนำให้กด “ดาวน์โหลดไฟล์สำรอง” ก่อน<br>ต้องการดำเนินการต่อหรือไม่?',
           'ยืนยัน', `data-act="do-reset" data-demo="${d.demo}"`);
         break;
-      case 'do-reset': Store.reset(d.demo === '1'); prefs.hideDemo = 0; savePrefs(); closeModal(); toast(d.demo === '1' ? 'โหลดข้อมูลตัวอย่างแล้ว' : 'ล้างข้อมูลแล้ว พร้อมใช้งานจริง'); route(); break;
+      case 'do-reset':
+        a.disabled = true;
+        Promise.resolve(Store.reset(d.demo === '1'))
+          .then(() => { prefs.hideDemo = 0; savePrefs(); closeModal(); toast(d.demo === '1' ? 'โหลดข้อมูลตัวอย่างแล้ว' : 'ล้างข้อมูลแล้ว'); route(); })
+          .catch(err => { a.disabled = false; toast('ล้างข้อมูลไม่สำเร็จ: ' + errText(err)); });
+        break;
       default: break;
     }
   });
@@ -774,7 +1008,46 @@
       ['orgShort', 'orgFull', 'systemTitle', 'systemName', 'address', 'director', 'directorTitle'].forEach(k => { o[k] = f.elements[k].value.trim(); });
       o.villages = f.elements.villages.value.split('\n').map(x => x.trim()).filter(Boolean);
       o.rooms = f.elements.rooms.value.split('\n').map(x => x.trim()).filter(Boolean);
-      Store.saveSettings(o); toast('บันทึกการตั้งค่าแล้ว'); route(true);
+      busyBtn(f, true);
+      Promise.resolve(Store.saveSettings(o))
+        .then(() => { toast('บันทึกการตั้งค่าแล้ว'); route(true); })
+        .catch(err => { busyBtn(f, false); toast('บันทึกไม่สำเร็จ: ' + errText(err)); });
+    } else if (e.target.id === 'loginForm') {
+      e.preventDefault();
+      const f = e.target, u = f.elements.username.value.trim(), pw = f.elements.password.value;
+      if (!u || !pw) { showErr('loginErr', 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'); return; }
+      busyBtn(f, true, 'กำลังเข้าสู่ระบบ…');
+      Cloud.signIn(u, pw).catch(err => { busyBtn(f, false); showErr('loginErr', errText(err)); });
+    } else if (e.target.id === 'pwForm') {
+      e.preventDefault();
+      const f = e.target, cur = f.elements.cur.value, n1 = f.elements.n1.value, n2 = f.elements.n2.value;
+      if (!cur || !n1) { showErr('pwErr', 'กรุณากรอกให้ครบ'); return; }
+      if (n1.length < 8) { showErr('pwErr', 'รหัสผ่านใหม่ต้องยาวอย่างน้อย 8 ตัวอักษร'); return; }
+      if (n1 !== n2) { showErr('pwErr', 'ยืนยันรหัสผ่านใหม่ไม่ตรงกัน'); return; }
+      if (n1 === cur) { showErr('pwErr', 'รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสผ่านเดิม'); return; }
+      busyBtn(f, true);
+      Cloud.changePassword(cur, n1)
+        .then(() => { closeModal(); toast('เปลี่ยนรหัสผ่านเรียบร้อย'); route(true); })
+        .catch(err => { busyBtn(f, false); showErr('pwErr', errText(err)); });
+    } else if (e.target.id === 'newUserForm') {
+      e.preventDefault();
+      const f = e.target, username = f.elements.username.value.trim().toLowerCase(), name = f.elements.name.value.trim();
+      if (!Cloud.usernameOk(username)) { showErr('userErr', 'ชื่อผู้ใช้ต้องเป็นภาษาอังกฤษตัวเล็ก ตัวเลข หรือ . _ - ยาว 3–30 ตัว'); return; }
+      if (!name) { showErr('userErr', 'กรุณากรอกชื่อ-สกุล'); return; }
+      busyBtn(f, true, 'กำลังสร้างบัญชี…');
+      Cloud.createUser({ username, name, position: f.elements.position.value.trim(), role: f.elements.role.value })
+        .then(r => { showNewUser(r, name); route(true); })
+        .catch(err => { busyBtn(f, false); showErr('userErr', errText(err)); });
+    } else if (e.target.id === 'memberForm') {
+      e.preventDefault();
+      const f = e.target, uid = f.dataset.uid, name = f.elements.name.value.trim();
+      if (!name) { showErr('userErr', 'กรุณากรอกชื่อ-สกุล'); return; }
+      const patch = { name, position: f.elements.position.value.trim() };
+      if (uid !== Cloud.ownerUid) { patch.role = f.elements.role.value; patch.active = f.elements.active.value === '1'; }
+      busyBtn(f, true);
+      Cloud.updateMember(uid, patch)
+        .then(() => { closeModal(); toast('บันทึกข้อมูลผู้ใช้งานแล้ว'); route(true); })
+        .catch(err => { busyBtn(f, false); showErr('userErr', errText(err)); });
     } else if (e.target.id === 'searchForm') {
       e.preventDefault();
       const target = '#/search?q=' + encodeURIComponent($('#q').value.trim());
@@ -800,23 +1073,57 @@
       const file = e.target.files && e.target.files[0];
       if (!file) return;
       const rd = new FileReader();
+      e.target.value = '';
       rd.onload = () => {
-        try { Store.importJSON(JSON.parse(rd.result)); toast('กู้คืนข้อมูลเรียบร้อย'); route(); }
-        catch (err) { toast('กู้คืนไม่สำเร็จ: ' + err.message); }
+        let obj;
+        try { obj = JSON.parse(rd.result); } catch (err) { toast('ไฟล์นี้ไม่ใช่ไฟล์สำรองข้อมูล (.json)'); return; }
+        toast(CLOUD ? 'กำลังนำเข้าข้อมูล…' : 'กำลังกู้คืนข้อมูล…');
+        Promise.resolve(Store.importJSON(obj))
+          .then(n => { toast(typeof n === 'number' ? `นำเข้าแล้ว ${num(n)} รายการ` : 'กู้คืนข้อมูลเรียบร้อย'); route(); })
+          .catch(err => toast('กู้คืนไม่สำเร็จ: ' + errText(err)));
       };
       rd.readAsText(file);
     }
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { if ($('#modal-root').innerHTML) closeModal(); else document.body.classList.remove('nav-open'); }
+    if (e.key === 'Escape') {
+      if ($('#modal-root').innerHTML) { if (!$('#modal-root [data-locked]')) closeModal(); }
+      else document.body.classList.remove('nav-open');
+    }
   });
 
-  window.addEventListener('hashchange', () => route());
+  window.addEventListener('hashchange', () => { if (started && authed) route(); });
 
   /* ---------- Start ---------- */
-  buildFY();
+  let started = false;
+  let authed = !CLOUD;
+  function startApp() {
+    if (started) { route(true); return; }
+    started = true;
+    buildFY();
+    route();
+    setInterval(tick, 15000);
+  }
+  function handleAuth(s) {
+    if (s.status === 'ready') {
+      authed = true;
+      hideAuth();
+      startApp();
+      if (s.user && s.user.mustChangePassword) openPwModal(true);
+      return;
+    }
+    authed = false;
+    clearTimeout(renderTimer);
+    closeModal();
+    if (location.hash && location.hash !== '#/') history.replaceState(null, '', '#/'); // ผู้ใช้คนถัดไปเริ่มที่หน้าหลัก
+    if (started) { $('#view').innerHTML = ''; $('#sidebar').innerHTML = ''; }
+    showAuth(s);
+  }
   $('#footYear').textContent = new Date().getFullYear() + 543;
-  route();
-  setInterval(tick, 15000);
+  if (Store.onChange) Store.onChange(scheduleRender);
+  if (CLOUD) {
+    Cloud.onError(err => toast('⚠️ ' + errText(err)));
+    Cloud.onAuth(handleAuth);
+  } else startApp();
 })();

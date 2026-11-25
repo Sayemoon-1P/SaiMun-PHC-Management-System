@@ -1,0 +1,39 @@
+rules_version = '2';
+// สร้างอัตโนมัติจาก tools/build-rules.js — อย่าแก้ไฟล์นี้โดยตรง
+// หลักการ: อ่าน/เขียนได้เฉพาะผู้ใช้ที่ผู้ดูแลระบบเพิ่มไว้ใน members และยังเปิดใช้งาน (active == true)
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isOwner() { return signedIn() && request.auth.uid == 'KXzM61fm8ERvwmlONGyrV9NysQm1'; }
+    function hasMember() { return signedIn() && exists(/databases/$(database)/documents/members/$(request.auth.uid)); }
+    function member() { return get(/databases/$(database)/documents/members/$(request.auth.uid)).data; }
+    function isMember() { return isOwner() || (hasMember() && member().active == true); }
+    function isAdmin() { return isOwner() || (hasMember() && member().active == true && member().role == 'admin'); }
+
+    // บัญชีผู้ใช้งาน: ผู้ดูแลระบบจัดการ / เจ้าตัวอ่านของตัวเองได้ และปิดสถานะ "ต้องเปลี่ยนรหัสผ่าน" ได้เท่านั้น
+    match /members/{uid} {
+      allow read: if isMember() || (signedIn() && request.auth.uid == uid);
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (signedIn() && request.auth.uid == uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mustChangePassword'])
+            && request.resource.data.mustChangePassword == false);
+    }
+
+    // การตั้งค่าหน่วยงาน
+    match /meta/{docId} {
+      allow read: if isMember();
+      allow write: if isAdmin();
+    }
+
+    // ตัวนับเลขที่หนังสือ (ออกเลขไม่ซ้ำ)
+    match /counters/{docId} {
+      allow read, write: if isMember();
+    }
+
+    // ทะเบียนต่าง ๆ (33 ทะเบียน)
+    match /{col}/{docId} {
+      allow read, write: if isMember() && col in ['incoming', 'outgoing', 'orders', 'announce', 'contract', 'certificate', 'leave', 'vehicle', 'deeka', 'budget', 'procurement', 'loan', 'cheque', 'receipt', 'news', 'personnel', 'duty', 'assignments', 'equipment', 'supplies', 'elderly', 'disabled', 'mental', 'ems', 'blood', 'ttm', 'osm', 'projects', 'ncd', 'investigate', 'epi', 'ltcClients', 'visitPlan'];
+    }
+  }
+}
