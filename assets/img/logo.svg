@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="ตราสัญลักษณ์ รพ.สต.ทรายมูล">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d98a3d"/>
+      <stop offset="1" stop-color="#8a4519"/>
+    </linearGradient>
+    <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd77a"/>
+      <stop offset="1" stop-color="#eea532"/>
+    </linearGradient>
+    <clipPath id="clip"><circle cx="60" cy="60" r="49"/></clipPath>
+  </defs>
+  <circle cx="60" cy="60" r="59" fill="#fff"/>
+  <circle cx="60" cy="60" r="54.5" fill="none" stroke="#b15c26" stroke-width="4"/>
+  <circle cx="60" cy="60" r="49" fill="url(#bg)"/>
+  <g clip-path="url(#clip)">
+    <circle cx="88" cy="34" r="9" fill="#ffe7a8" opacity=".9"/>
+    <path d="M0 86 Q 28 70 58 82 T 120 78 V120 H0Z" fill="url(#sand)"/>
+    <path d="M0 97 Q 34 86 68 95 T 120 92 V120 H0Z" fill="#fbd68a"/>
+  </g>
+  <path d="M50 24 H70 V40 H86 V60 H70 V76 H50 V60 H34 V40 H50 Z" fill="#fff" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M55 30 H65 V45 H80 V55 H65 V70 H55 V55 H40 V45 H55 Z" fill="#c2532a"/>
+</svg>

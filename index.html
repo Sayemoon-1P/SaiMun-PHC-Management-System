@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#8e481b">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="ระบบบริหารโรงพยาบาลส่งเสริมสุขภาพตำบลทรายมูล อำเภอสว่างแดนดิน จังหวัดสกลนคร">
+  <title>รพ.สต.ทรายมูล · SaiMun-PHC Management System</title>
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside id="sidebar" class="sidebar"><nav class="nav"></nav></aside>
+    <div class="backdrop" data-act="close-nav"></div>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="b3d light icon only-m" type="button" data-act="toggle-nav" aria-label="เปิดเมนู">☰</button>
+        <form id="searchForm" class="gsearch" role="search">
+          <span aria-hidden="true">🔍</span>
+          <input id="q" type="search" placeholder="ค้นหาทั้งระบบ เช่น 2570, เลขที่หนังสือ, เรื่อง, ชื่อ" aria-label="ค้นหาทั้งระบบ">
+          <button class="b3d sm" type="submit">ค้นหา</button>
+        </form>
+        <label class="fy"><span>ปีงบประมาณ</span><select id="fySel" aria-label="ปีงบประมาณ"></select></label>
+      </header>
+
+      <main id="view" class="view" tabindex="-1"></main>
+
+      <footer class="foot">
+        © <span id="footYear"></span> โรงพยาบาลส่งเสริมสุขภาพตำบลทรายมูล · ต.ทรายมูล อ.สว่างแดนดิน จ.สกลนคร
+      </footer>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="toast-root" aria-live="polite"></div>
+
+  <script src="assets/js/util.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
